@@ -6,6 +6,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import java.util.TimeZone
 import java.util.Calendar
 
 class AlarmReceiver : BroadcastReceiver() {
@@ -50,9 +52,10 @@ class AlarmReceiver : BroadcastReceiver() {
             )
         }
 
-        fun scheduleAt(context: Context, schedule: Schedule) {
-            val now = Calendar.getInstance()
-            val target = Calendar.getInstance()
+       fun scheduleAt(context: Context, schedule: Schedule) {
+            val istZone = TimeZone.getTimeZone("Asia/Kolkata")
+            val now = Calendar.getInstance(istZone)
+            val target = Calendar.getInstance(istZone)
             target.set(Calendar.HOUR_OF_DAY, schedule.hour)
             target.set(Calendar.MINUTE, schedule.minute)
             target.set(Calendar.SECOND, 0)
@@ -61,11 +64,12 @@ class AlarmReceiver : BroadcastReceiver() {
                 target.add(Calendar.DAY_OF_YEAR, 1)
             }
             val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            am.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                target.timeInMillis,
-                pendingIntentFor(context, schedule)
-            )
+            val pendingIntent = pendingIntentFor(context, schedule)
+            if (Build.VERSION.SDK_INT >= 31 && !am.canScheduleExactAlarms()) {
+                am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, target.timeInMillis, pendingIntent)
+            } else {
+                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, target.timeInMillis, pendingIntent)
+            }
         }
 
         fun cancel(context: Context, schedule: Schedule) {
