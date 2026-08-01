@@ -32,7 +32,7 @@ class MainActivity : Activity() {
         phoneInput = findViewById(R.id.phoneInput)
         messageInput = findViewById(R.id.messageInput)
         timePicker = findViewById(R.id.timePicker)
-        timePicker.setIs24HourView(true)
+        timePicker.setIs24HourView(false)
         repeatCheck = findViewById(R.id.repeatCheck)
         listView = findViewById(R.id.scheduleListView)
 
