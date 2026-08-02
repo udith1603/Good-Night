@@ -1,9 +1,11 @@
 package com.yourname.gnight
 
+import android.Manifest
 import android.app.Activity
 import android.app.AlarmManager
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -49,6 +51,7 @@ class MainActivity : Activity() {
         }
 
         requestExactAlarmPermissionIfNeeded()
+        requestNotificationPermissionIfNeeded()
 
         // Re-arm everything each time the app opens. Self-healing if an
         // alarm was ever dropped (e.g. before BootReceiver ran).
@@ -60,6 +63,14 @@ class MainActivity : Activity() {
             val am = getSystemService(ALARM_SERVICE) as AlarmManager
             if (!am.canScheduleExactAlarms()) {
                 startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM))
+            }
+        }
+    }
+
+    private fun requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 100)
             }
         }
     }
